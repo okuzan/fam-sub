@@ -1,8 +1,6 @@
 package fam.sub.model;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,19 +27,9 @@ public class Payment {
 
     private double amount;
 
-    @Enumerated(EnumType.STRING)
-    private PaymentMethod paymentMethod;
-
-    public Payment(Person person, LocalDateTime now, int topUpAmount, String paymentMethod) {
+    public Payment(Person person, LocalDateTime now, int topUpAmount) {
         this.person = person;
         this.timestamp = now;
         this.amount = topUpAmount;
-        this.paymentMethod = PaymentMethod.valueOf(paymentMethod);
-    }
-
-    public enum PaymentMethod {
-        PRIVAT,
-        MONO,
-        REVOLUT
     }
 }

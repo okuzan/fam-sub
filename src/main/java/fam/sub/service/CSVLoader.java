@@ -42,7 +42,7 @@ public class CSVLoader {
     private static final int MONTHS_INDEX = 2;
     private static final int FEE_INDEX = 1;
     public static final String SKIP_LINE_SYMBOL = "#";
-    private static final int METHOD_INDEX = 4;
+    private static final int METHOD_INDEX = 3;
 
 
     private final PersonRepository personRepository;
@@ -62,11 +62,9 @@ public class CSVLoader {
             String[] columns = line.split(SEPARATOR);
             String name = columns[NAME_INDEX];
             int topUpAmount = Integer.parseInt(columns[SUM_INDEX]);
-            String paymentMethod = columns[METHOD_INDEX];
-
             Person person = personRepository.findByName(name).orElseThrow();
 
-            Payment payment = new Payment(person, LocalDateTime.now(), topUpAmount, paymentMethod);
+            Payment payment = new Payment(person, LocalDateTime.now(), topUpAmount);
             paymentRepository.save(payment);
 
             person.setBalance(person.getBalance() + topUpAmount);
