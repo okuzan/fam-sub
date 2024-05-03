@@ -2,6 +2,7 @@ package fam.sub.service;
 
 import fam.sub.model.ChargedBill;
 import fam.sub.model.Payment;
+import fam.sub.model.PaymentMethod;
 import fam.sub.model.Person;
 import fam.sub.model.SeasonalUserSubscription;
 import fam.sub.model.Service;
@@ -57,8 +58,8 @@ public class CSVLoader {
             String name = columns[NAME_INDEX];
             int topUpAmount = Integer.parseInt(columns[SUM_INDEX]);
             Person person = personRepository.findByName(name).orElseThrow();
-
-            Payment payment = new Payment(person, LocalDateTime.now(), topUpAmount);
+            PaymentMethod paymentMethod = PaymentMethod.getByCode(columns[2]);
+            Payment payment = new Payment(person, LocalDateTime.now(), topUpAmount, paymentMethod);
             paymentRepository.save(payment);
 
             person.setBalance(person.getBalance() + topUpAmount);
