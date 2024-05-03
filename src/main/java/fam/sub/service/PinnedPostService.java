@@ -20,7 +20,7 @@ public class PinnedPostService {
     public static final String PINNED_RESULT = "src/main/resources/output/pinned.md";
     public static final String PINNED_POST_TEMPLATE = "src/main/resources/templates/pinned.md";
     public static final String TIMESTAMP_PATTERN = "MMM dd HH:mm";
-    public static final String LINE = "—————————————————————————\n";
+    public static final String LINE = "————————————————————————\n";
     private final PersonRepository personRepository;
     private final BalanceService balanceService;
 
@@ -67,7 +67,7 @@ public class PinnedPostService {
                     .append(" ");
             if (user.getBalance() != 0) {
                 currentBalance.append("**")
-                        .append((int) user.getBalance())
+                        .append(Math.abs((int) user.getBalance()))
                         .append("** ");
             }
             currentBalance.append("**")

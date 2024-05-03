@@ -22,8 +22,6 @@ public class FamSubManager {
                                  PinnedPostService pinnedPostService
     ) {
         return args -> {
-//            pinnedPostService.generatePinnedPost();
-            csvLoader.parseTopUps();
         };
     }
 }

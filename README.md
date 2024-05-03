@@ -37,3 +37,8 @@ We welcome contributions to the Family Subscription Manager! If you have a featu
 This project is licensed under the MIT License. See the LICENSE file for more details.
 
 Join us in making family subscriptions fun and easy to manage! 🎉
+
+Algo of how to drop the seasonal bills:
+1. Parse charged bills
+2. Calculate current season bills for all users
+3. Update balances

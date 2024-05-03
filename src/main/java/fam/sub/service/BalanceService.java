@@ -54,7 +54,7 @@ public class BalanceService {
     }
 
     @Transactional
-    public void calculateBillsForAllUsers() {
+    public void calculateCurrentSeasonBillsForAllUsers() {
         List<Person> people = personRepository.findAll();
         for (Person person : people) {
             calculateSeasonUserBill(person, SeasonUtility.getCurrentSeasonDate());
@@ -62,10 +62,10 @@ public class BalanceService {
     }
 
     @Transactional
-    public void showAndUpdateBalancesForAllUsers(boolean execute) {
+    public void showAndUpdateBalancesForAllUsers(boolean applyChanges) {
         List<Person> people = personRepository.findAll();
         for (Person person : people) {
-            updateBalances(person, execute);
+            updateBalances(person, applyChanges);
         }
     }
 

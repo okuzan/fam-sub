@@ -27,9 +27,8 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class CSVLoader {
-    private static final String CSV_TEMPLATE = "src/main/resources/data/{}.csv";
+    private static final String CSV_TEMPLATE = "src/main/resources/data/current/{}.csv";
 
-    private static final String BALANCE_CSV = CSV_TEMPLATE.replace("{}", "balance");
     private static final String MEMBERSHIP_CSV = CSV_TEMPLATE.replace("{}", "membership");
     private static final String TOPUPS_CSV = CSV_TEMPLATE.replace("{}", "topups");
     private static final String CHARGED_CSV = CSV_TEMPLATE.replace("{}", "charged");
@@ -38,12 +37,7 @@ public class CSVLoader {
     private static final int NAME_INDEX = 0;
     private static final int SUM_INDEX = 1;
     private static final int SERVICE_NAME_INDEX = 0;
-    private static final int USER_NAME_INDEX = 1;
-    private static final int MONTHS_INDEX = 2;
-    private static final int FEE_INDEX = 1;
     public static final String SKIP_LINE_SYMBOL = "#";
-    private static final int METHOD_INDEX = 3;
-
 
     private final PersonRepository personRepository;
     private final ServiceRepository serviceRepository;
@@ -78,46 +72,36 @@ public class CSVLoader {
         for (String line : lines) {
             String[] columns = line.split(SEPARATOR);
             String serviceName = columns[SERVICE_NAME_INDEX];
-            double charged = Double.parseDouble(columns[FEE_INDEX]);
-            Month month = Month.of(Integer.parseInt(columns[MONTHS_INDEX]));
             Service service = serviceRepository.findByName(serviceName).orElseThrow();
-            chargedBillRepository.save(new ChargedBill(service, charged, month));
+
+            for (int i = 1; i < columns.length; i++) {
+                double charged = Double.parseDouble(columns[i]);
+                Month month = Month.of(i);
+                chargedBillRepository.save(new ChargedBill(service, charged, month));
+            }
         }
     }
 
     @SneakyThrows
-    public void parseBalance() {
-        List<String> lines = Files.readAllLines(Paths.get(BALANCE_CSV));
-        for (String line : lines) {
-            String[] columns = line.split(SEPARATOR);
-            String name = columns[NAME_INDEX];
-            int newBalance = Integer.parseInt(columns[SUM_INDEX]);
-
-            Person person = personRepository.findByName(name).orElseThrow();
-            person.setBalance(newBalance);
-            personRepository.save(person);
-        }
-    }
-
-    @SneakyThrows
-    public void parseSubscriptions() {
+    public void parseMemberships() {
         List<String> lines = Files.readAllLines(Path.of(MEMBERSHIP_CSV));
         for (String line : lines) {
             String[] columns = line.split(SEPARATOR);
             String serviceName = columns[SERVICE_NAME_INDEX];
-            String userName = columns[USER_NAME_INDEX];
-            double months = Double.parseDouble(columns[MONTHS_INDEX]);
-
-            Person person = personRepository.findByName(userName).orElseThrow();
             Service service = serviceRepository.findByName(serviceName).orElseThrow();
 
-            subscriptionRepository.save(new SeasonalUserSubscription(
-                    person,
-                    service,
-                    months,
-                    SeasonUtility.getCurrentSeason(),
-                    LocalDateTime.now().getYear()
-            ));
+            for (int i = 1; i < columns.length; i++) {
+                String userName = columns[i];
+                Person person = personRepository.findByName(userName).orElseThrow();
+
+                subscriptionRepository.save(new SeasonalUserSubscription(
+                        person,
+                        service,
+                        3, // Assume months duration of 3 everywhere
+                        SeasonUtility.getCurrentSeason(),
+                        LocalDateTime.now().getYear()
+                ));
+            }
         }
     }
 }
