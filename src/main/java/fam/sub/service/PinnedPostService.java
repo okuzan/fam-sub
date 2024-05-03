@@ -6,6 +6,7 @@ import fam.sub.repository.PersonRepository;
 import fam.sub.util.SeasonUtility;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -24,6 +26,9 @@ public class PinnedPostService {
     private final PersonRepository personRepository;
     private final BalanceService balanceService;
 
+    @Value("${users.excluded}")
+    private String excludedUsersString;
+
     @Autowired
     public PinnedPostService(PersonRepository personRepository, BalanceService balanceService) {
         this.personRepository = personRepository;
@@ -34,6 +39,11 @@ public class PinnedPostService {
     public void generatePinnedPost() {
         Season currentSeason = SeasonUtility.getCurrentSeason();
         List<Person> users = personRepository.findAllByOrderByBalance();
+
+        String[] excludedUsers = excludedUsersString.split(",");
+        users = users.stream()
+                .filter(user -> Arrays.stream(excludedUsers).noneMatch(user.getName()::equals))
+                .toList();
 
         String currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern(TIMESTAMP_PATTERN));
 
