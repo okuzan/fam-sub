@@ -25,7 +25,7 @@ import java.util.Optional;
 @Transactional
 @Component
 @RequiredArgsConstructor
-public class CSVLoaderInit {
+public class CSVDataInitializer {
     private static final String CSV_TEMPLATE = "src/main/resources/data/{}.csv";
 
     private static final String BALANCE_CSV = CSV_TEMPLATE.replace("{}", "balance");
