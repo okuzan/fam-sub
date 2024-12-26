@@ -7,5 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class SeasonDate {
     private Season season;
-    private int year;
+    private int year; // TODO change to Year
 }
