@@ -13,16 +13,15 @@ import fam.sub.repository.ServiceRepository;
 import fam.sub.repository.SubscriptionRepository;
 import fam.sub.util.SeasonUtility;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import org.springframework.stereotype.Component;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import org.springframework.stereotype.Component;
 
 @Transactional
 @Component
@@ -77,6 +76,9 @@ public class CSVLoader {
 
             for (int i = 1; i < columns.length; i++) {
                 double charged = Double.parseDouble(columns[i]);
+                if (charged == 0) {
+                    continue;
+                }
                 Month month = Month.of(i);
                 chargedBillRepository.save(new ChargedBill(service, charged, month));
             }
