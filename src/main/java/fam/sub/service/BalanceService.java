@@ -1,5 +1,7 @@
 package fam.sub.service;
 
+import static fam.sub.util.SeasonUtility.MONTHS_IN_SEASON;
+
 import fam.sub.model.ChargedBill;
 import fam.sub.model.Person;
 import fam.sub.model.Season;
@@ -11,16 +13,15 @@ import fam.sub.repository.PersonRepository;
 import fam.sub.repository.SubscriptionRepository;
 import fam.sub.util.SeasonUtility;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Set;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
-import static fam.sub.util.SeasonUtility.MONTHS_IN_SEASON;
-
+@Slf4j
 @org.springframework.stereotype.Service
 @RequiredArgsConstructor
 public class BalanceService {
@@ -41,11 +42,11 @@ public class BalanceService {
                         .sum());
 
         double newBalance = person.getBalance() - totalCharges;
-        System.out.println(person.getName() + " : " + (int) totalCharges);
+        log.info("{} : {}", person.getName(), (int) totalCharges);
         seasonalUserBills.forEach(subscription -> {
-            System.out.println(subscription.getService().getName() + " : " + subscription.getAmount());
+            log.info("{} : {}", subscription.getService().getName(), subscription.getAmount());
         });
-        System.out.println("--------------------");
+        log.info("--------------------");
 
         if (execute) {
             person.setBalance(newBalance);
@@ -69,15 +70,6 @@ public class BalanceService {
         }
     }
 
-    public double getServiceCostBySeason(Service service, SeasonDate seasonDate) {
-        Set<Month> months = SeasonUtility.getMonthsOfSeason(seasonDate.getSeason());
-        List<ChargedBill> chargedBills = chargedBillRepository.findAllByMonthInAndYear(months, seasonDate.getYear());
-        return chargedBills.stream()
-                .filter(chargedBill -> chargedBill.getService().equals(service))
-                .mapToDouble(ChargedBill::getAmount)
-                .sum();
-    }
-
     @Transactional
     public void calculateSeasonUserBill(Person person, SeasonDate seasonDate) {
         List<SeasonalUserSubscription> seasonalUserSubscriptions = subscriptionRepository
@@ -98,11 +90,11 @@ public class BalanceService {
             amount = roundToCent(amount);
 
             subscription.setAmount(amount);
-            System.out.println("User: " + person.getName() + " Service: " + subscription.getService().getName() + " Amount: " + amount);
+            log.info("Calculated bill for {} for user {} for season {} - {}",
+                    subscription.getService().getName(), person.getName(), seasonDate.getSeason(), amount);
             subscriptionRepository.save(subscription);
         }
     }
-
 
     @Transactional
     public double getNextSeasonBillForUser(Person person) {
@@ -163,12 +155,23 @@ public class BalanceService {
         return roundToCent(futureTotalCost / currentMembers);
     }
 
+    private double getServiceCostBySeason(Service service, SeasonDate seasonDate) {
+        Set<Month> months = SeasonUtility.getMonthsOfSeason(seasonDate.getSeason());
+        List<ChargedBill> chargedBills = chargedBillRepository.findAllByMonthInAndYear(months, seasonDate.getYear());
+        return chargedBills.stream()
+                .filter(chargedBill -> chargedBill.getService().equals(service))
+                .mapToDouble(ChargedBill::getAmount)
+                .sum();
+    }
+
     private void createSameSubscriptionForNextSeason(SeasonalUserSubscription subscription, Season nextSeason) {
         SeasonalUserSubscription newSubscription = new SeasonalUserSubscription(subscription);
         newSubscription.setMonths(MONTHS_IN_SEASON);
         newSubscription.setSeason(nextSeason);
         newSubscription.setAmount(0);
         subscriptionRepository.save(newSubscription);
+        log.info("Subscription for {} created for user {} for season {}",
+                subscription.getService().getName(), subscription.getPerson().getName(), nextSeason);
     }
 
     private static double roundToCent(double amount) {
