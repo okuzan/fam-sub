@@ -13,3 +13,18 @@ spring:
     import: optional:file:.env[.properties]
 users:
   excluded: ${USERS_EXCLUDED}
+logging:
+  level:
+    fam.sub: DEBUG
+    root: INFO
+    org:
+      hibernate:
+        info: info
+        SQL: debug
+        orm.jdbc.bind: trace
+        stat: debug
+        SQL_SLOW: info
+        cache: debug
+        type.descriptor.sql.BasicBinder: trace
+  pattern:
+    console: "%magenta(%d{HH:mm:ss.SSS}) %green(%5p) --- %cyan(%c{0}) : %msg%n%ex{5}"
