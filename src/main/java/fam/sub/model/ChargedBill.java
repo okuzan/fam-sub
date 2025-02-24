@@ -7,12 +7,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.time.Month;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDate;
-import java.time.Month;
 
 @Entity
 @Getter
@@ -32,10 +30,10 @@ public class ChargedBill {
     private Month month;
     private int year;
 
-    public ChargedBill(Service service, double charged, Month month) {
+    public ChargedBill(Service service, double charged, Month month, int year) {
         this.service = service;
         this.amount = charged;
         this.month = month;
-        this.year = LocalDate.now().getYear();
+        this.year = year;
     }
 }

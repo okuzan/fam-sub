@@ -79,8 +79,10 @@ public class CSVLoader {
                 if (charged == 0) {
                     continue;
                 }
-                Month month = Month.of(i);
-                chargedBillRepository.save(new ChargedBill(service, charged, month));
+                Month month = i == 1 ? Month.DECEMBER : Month.of(i - 1);
+
+                int year = i == 1 ? LocalDateTime.now().getYear() - 1 : LocalDateTime.now().getYear();
+                chargedBillRepository.save(new ChargedBill(service, charged, month, year));
             }
         }
     }

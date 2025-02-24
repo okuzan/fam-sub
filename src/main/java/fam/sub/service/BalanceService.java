@@ -15,6 +15,7 @@ import fam.sub.util.SeasonUtility;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -157,7 +158,17 @@ public class BalanceService {
 
     private double getServiceCostBySeason(Service service, SeasonDate seasonDate) {
         Set<Month> months = SeasonUtility.getMonthsOfSeason(seasonDate.getSeason());
+
+        // Fetch records for the current year
         List<ChargedBill> chargedBills = chargedBillRepository.findAllByMonthInAndYear(months, seasonDate.getYear());
+
+        // If December is in the months list, fetch additional records for December of the previous year
+        if (months.contains(Month.DECEMBER)) {
+            List<ChargedBill> decemberBills = chargedBillRepository.findAllByMonthInAndYear(
+                    Collections.singleton(Month.DECEMBER), seasonDate.getYear() - 1);
+            chargedBills.addAll(decemberBills);
+        }
+
         return chargedBills.stream()
                 .filter(chargedBill -> chargedBill.getService().equals(service))
                 .mapToDouble(ChargedBill::getAmount)

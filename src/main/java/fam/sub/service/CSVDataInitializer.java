@@ -38,6 +38,7 @@ public class CSVDataInitializer {
     private static final int SERVICE_NAME_INDEX = 0;
     private static final int USER_NAME_INDEX = 1;
     private static final int MONTHS_INDEX = 2;
+    private static final int YEAR_INDEX = 3;
     private static final int FEE_INDEX = 1;
 
     private final PersonRepository personRepository;
@@ -53,6 +54,7 @@ public class CSVDataInitializer {
             String serviceName = columns[SERVICE_NAME_INDEX];
             double charged = Double.parseDouble(columns[FEE_INDEX]);
             Month month = Month.of(Integer.parseInt(columns[MONTHS_INDEX]));
+            int year = Integer.parseInt(columns[YEAR_INDEX]);
             Service service = serviceRepository.findByName(serviceName).orElseThrow();
             Optional<ChargedBill> billOptional = chargedBillRepository.getChargedBillByServiceAndMonthAndYear(service, month, LocalDateTime.now().getYear());
             if (billOptional.isPresent()) {
@@ -60,7 +62,7 @@ public class CSVDataInitializer {
                 bill.setAmount(charged);
                 chargedBillRepository.save(bill);
             } else {
-                chargedBillRepository.save(new ChargedBill(service, charged, month));
+                chargedBillRepository.save(new ChargedBill(service, charged, month, year));
             }
         }
     }
